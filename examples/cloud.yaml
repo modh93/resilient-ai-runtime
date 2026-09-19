@@ -1,0 +1,24 @@
+runtime:
+  timeout_s: 30
+  retries_per_candidate: 1
+
+providers:
+  mistral:
+    credential_env: MISTRAL_API_KEY
+
+models:
+  mistral-default:
+    provider: mistral
+    model: mistral-small-latest
+    zone: eu-cloud
+    enabled: true
+    capabilities: [text]
+    pricing:
+      input_price_per_token: 0.0000002
+      output_price_per_token: 0.0000006
+
+policies:
+  cloud-only:
+    allowed_zones: [eu-cloud]
+    model_priority: [mistral-default]
+    fallback: false

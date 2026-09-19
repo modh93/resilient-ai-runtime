@@ -1,0 +1,41 @@
+# Reproducible benchmark configuration. It disables Runtime resilience so each
+# run measures one selected candidate only. Timeouts remain illustrative: tune
+# them for the model, hardware and prompt context before comparing results.
+runtime:
+  timeout_s: 30
+  retries_per_candidate: 0
+
+providers:
+  ollama:
+    base_url_env: OLLAMA_BASE_URL
+    timeout_s: 90
+  mistral:
+    credential_env: MISTRAL_API_KEY
+    timeout_s: 10
+
+models:
+  benchmark-local:
+    provider: ollama
+    model: qwen3:4b
+    zone: local
+    enabled: true
+    capabilities: [text]
+  benchmark-mistral:
+    provider: mistral
+    model: mistral-small-latest
+    zone: eu-cloud
+    enabled: true
+    capabilities: [text]
+    pricing:
+      input_price_per_token: 0.0000002
+      output_price_per_token: 0.0000006
+
+policies:
+  benchmark-local:
+    allowed_zones: [local]
+    model_priority: [benchmark-local]
+    fallback: false
+  benchmark-mistral:
+    allowed_zones: [eu-cloud]
+    model_priority: [benchmark-mistral]
+    fallback: false

@@ -1,0 +1,95 @@
+# Example Runtime v0 configuration. Model IDs, prices and timeouts are
+# illustrative and may be outdated: check each provider's current model list
+# and pricing. Entries marked REPLACE_WITH_* must be edited before use;
+# openai-default and anthropic-default will fail until then.
+# Calibrate timeouts for the model, hardware and prompt context.
+# A policy's max_latency_ms remains the global request budget and caps every
+# provider/model timeout below.
+runtime:
+  timeout_s: 30
+  retries_per_candidate: 1
+
+providers:
+  ollama:
+    base_url_env: OLLAMA_BASE_URL
+    timeout_s: 90
+  mistral:
+    credential_env: MISTRAL_API_KEY
+    timeout_s: 10
+  openai:
+    credential_env: OPENAI_API_KEY
+  anthropic:
+    credential_env: ANTHROPIC_API_KEY
+
+models:
+  local-default:
+    provider: ollama
+    model: qwen3:8b
+    zone: local
+    enabled: true
+    capabilities:
+      - text
+    pricing: null
+  mistral-default:
+    provider: mistral
+    model: mistral-small-latest
+    zone: eu-cloud
+    enabled: true
+    capabilities:
+      - text
+    pricing:
+      input_price_per_token: 0.0000002
+      output_price_per_token: 0.0000006
+  openai-default:
+    provider: openai
+    # PLACEHOLDER: replace with a model ID your OpenAI account can use.
+    model: REPLACE_WITH_OPENAI_MODEL_ID
+    zone: frontier
+    enabled: true
+    capabilities:
+      - text
+    pricing: null
+  anthropic-default:
+    provider: anthropic
+    # PLACEHOLDER: replace with a model ID your Anthropic account can use.
+    model: REPLACE_WITH_ANTHROPIC_MODEL_ID
+    zone: frontier
+    enabled: true
+    capabilities:
+      - text
+    pricing: null
+
+policies:
+  local-only:
+    allowed_zones:
+      - local
+    model_priority:
+      - local-default
+    fallback: false
+  confidential:
+    allowed_zones:
+      - local
+      - eu-cloud
+    forbidden_providers:
+      - openai
+      - anthropic
+    model_priority:
+      - local-default
+      - mistral-default
+    fallback: true
+    max_cost_usd: 0.05
+    # This 10 s global budget caps the Ollama provider override above.
+    max_latency_ms: 10000
+  balanced:
+    allowed_zones:
+      - local
+      - eu-cloud
+      - frontier
+    model_priority:
+      - local-default
+      - mistral-default
+      - openai-default
+      - anthropic-default
+    fallback: true
+    max_cost_usd: 0.10
+    max_latency_ms: 15000

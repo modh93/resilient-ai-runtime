@@ -1,0 +1,25 @@
+runtime:
+  timeout_s: 30
+  retries_per_candidate: 0
+
+providers:
+  ollama:
+    base_url_env: OLLAMA_BASE_URL
+
+models:
+  local-integration:
+    provider: ollama
+    model: __OLLAMA_MODEL__
+    zone: local
+    enabled: true
+    capabilities:
+      - text
+    pricing: null
+
+policies:
+  integration-local:
+    allowed_zones:
+      - local
+    model_priority:
+      - local-integration
+    fallback: false

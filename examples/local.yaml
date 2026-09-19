@@ -1,0 +1,22 @@
+runtime:
+  timeout_s: 60
+  retries_per_candidate: 0
+
+providers:
+  ollama:
+    base_url_env: OLLAMA_BASE_URL   # defaults to http://localhost:11434
+
+models:
+  local-default:
+    provider: ollama
+    model: qwen3:4b
+    zone: local
+    enabled: true
+    capabilities: [text]
+    pricing: null
+
+policies:
+  local-only:
+    allowed_zones: [local]
+    model_priority: [local-default]
+    fallback: false

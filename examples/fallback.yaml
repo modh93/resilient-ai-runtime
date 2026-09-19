@@ -1,0 +1,35 @@
+runtime:
+  timeout_s: 30
+  retries_per_candidate: 1
+
+providers:
+  ollama:
+    base_url_env: OLLAMA_BASE_URL
+    timeout_s: 60
+  mistral:
+    credential_env: MISTRAL_API_KEY
+
+models:
+  local-default:
+    provider: ollama
+    model: qwen3:4b
+    zone: local
+    enabled: true
+    capabilities: [text]
+    pricing: null
+  mistral-default:
+    provider: mistral
+    model: mistral-small-latest
+    zone: eu-cloud
+    enabled: true
+    capabilities: [text]
+    pricing:
+      input_price_per_token: 0.0000002
+      output_price_per_token: 0.0000006
+
+policies:
+  local-then-cloud:
+    allowed_zones: [local, eu-cloud]
+    model_priority: [local-default, mistral-default]   # tried in this order
+    fallback: true
+    max_latency_ms: 20000
